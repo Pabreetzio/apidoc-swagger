@@ -11,46 +11,46 @@
  */
 
 var path   = require('path');
-var nomnom = require('nomnom');
+const { program } = require('commander');
+const pkgjson = require(path.join('..', 'package.json'));
 var apidocSwagger = require('../lib/index');
 
-var argv = nomnom
-    .option('file-filters', { abbr: 'f', 'default': '.*\\.(clj|coffee|cs|dart|erl|go|java|scala|js|php?|py|rb|ts|pm)$',
-            help: 'RegEx-Filter to select files that should be parsed (multiple -f can be used).' })
+program
+    .option('-f, --file-filters <file-filters>',
+        'RegEx-Filter to select files that should be parsed (multiple -f can be used).',
+        '.*\\.(clj|coffee|cs|dart|erl|go|java|scala|js|php?|py|rb|ts|pm)$')
 
-    .option('exclude-filters', { abbr: 'e', 'default': '',
-            help: 'RegEx-Filter to select files / dirs that should not be parsed (many -e can be used).', })
+    .option('-e, --exclude-filters <exclude-filters>',
+        'RegEx-Filter to select files / dirs that should not be parsed (many -e can be used).',
+        '')
 
-    .option('input', { abbr: 'i', 'default': './', help: 'Input / source dirname.' })
+    .option('-i, --input <input>', 'Input / source dirname.', './')
 
-    .option('output', { abbr: 'o', 'default': './doc/', help: 'Output dirname.' })    
+    .option('-o, --output <output>', 'Output dirname.', './doc/')
 
-    .option('verbose', { abbr: 'v', flag: true, 'default': false, help: 'Verbose debug output.' })
+    .option('-v, --verbose','Verbose debug output.',false)
 
-    .option('help', { abbr: 'h', flag: true, help: 'Show this help information.' })
+    .option('-h, --help', 'Show this help information.')
 
-    .option('debug', { flag: true, 'default': false, help: 'Show debug messages.' })
+    .option('--debug', 'Show debug messages.', false)
 
-    .option('color', { flag: true, 'default': true, help: 'Turn off log color.' })
+    .option('--color', 'Turn off log color.', true)
 
-    .option('parse', { flag: true, 'default': false,
-            help: 'Parse only the files and return the data, no file creation.' })
+    .option('--parse', 'Parse only the files and return the data, no file creation.', false)
 
-    .option('parse-filters'  , { help: 'Optional user defined filters. Format name=filename' })
-    .option('parse-languages', { help: 'Optional user defined languages. Format name=filename' })
-    .option('parse-parsers'  , { help: 'Optional user defined parsers. Format name=filename' })
-    .option('parse-workers'  , { help: 'Optional user defined workers. Format name=filename' })
+    .option('--parse-filters', 'Optional user defined filters. Format name=filename')
+    .option('--parse-languages', 'Optional user defined languages. Format name=filename')
+    .option('--parse-parsers'  , 'Optional user defined parsers. Format name=filename')
+    .option('--parse-workers'  , 'Optional user defined workers. Format name=filename')
 
-    .option('silent', { flag: true, 'default': false, help: 'Turn all output off.' })
+    .option('--silent', 'Turn all output off.', false)
 
-    .option('simulate', { flag: true, 'default': false, help: 'Execute but not write any file.' })
+    .option('--simulate', 'Execute but not write any file.', false)
 
     // markdown settings
-    .option('markdown', { flag: true, 'default': true, help: 'Turn off markdown parser.' })
-
-    .parse()
-;
-
+    .option('markdown', 'Turn off markdown parser.', true);
+program.parse(process.argv);
+var argv = program.opts();
 /**
  * Transform parameters to object
  *
@@ -74,25 +74,35 @@ function transformToObject(filters) {
     });
     return result;
 }
-
 var options = {
-    excludeFilters: argv['exclude-filters'],
-    includeFilters: argv['file-filters'],
+    excludeFilters: argv['excludeFilters'],
+    includeFilters: argv['fileFilters'],
     src           : argv['input'],
     dest          : argv['output'],
     verbose       : argv['verbose'],
     debug         : argv['debug'],
     parse         : argv['parse'],
     colorize      : argv['color'],
-    filters       : transformToObject(argv['parse-filters']),
-    languages     : transformToObject(argv['parse-languages']),
-    parsers       : transformToObject(argv['parse-parsers']),
-    workers       : transformToObject(argv['parse-workers']),
+    filters       : transformToObject(argv['parseFilters']),
+    languages     : transformToObject(argv['parseLanguages']),
+    parsers       : transformToObject(argv['parseParsers']),
+    workers       : transformToObject(argv['parseWorkers']),
     silent        : argv['silent'],
     simulate      : argv['simulate'],
     markdown      : argv['markdown']
 };
 
+if(options.verbose) {
+    const asciiArt = `
+              _     _                                                         
+   __ _ _ __ (_) __| | ___   ___      _____      ____ _  __ _  __ _  ___ _ __ 
+  / _\` | '_ \\| |/ _\` |/ _ \\ / __|____/ __\\ \\ /\\ / / _\` |/ _\` |/ _\` |/ _ \\ '__|
+ | (_| | |_) | | (_| | (_) | (_|_____\\__ \\\\ V  V / (_| | (_| | (_| |  __/ |   
+  \\__,_| .__/|_|\\__,_|\\___/ \\___|    |___/ \\_/\\_/ \\__,_|\\__, |\\__, |\\___|_|   
+       |_|                                              |___/ |___/   v${pkgjson.version}        
+    `;
+    console.info(asciiArt);
+}
 if (apidocSwagger.createApidocSwagger(options) === false) {
     process.exit(1);
 }
