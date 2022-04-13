@@ -20,7 +20,7 @@ program
         'RegEx-Filter to select files that should be parsed (multiple -f can be used).',
         '.*\\.(clj|coffee|cs|dart|erl|go|java|scala|js|php?|py|rb|ts|pm)$')
 
-    .option('-e, --exclude-filters <exclude-filters>',
+    .option('-e, --exclude-filters <exclude-filters...>',
         'RegEx-Filter to select files / dirs that should not be parsed (many -e can be used).',
         '')
 

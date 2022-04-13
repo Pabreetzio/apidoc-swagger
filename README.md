@@ -6,7 +6,7 @@ apidoc and swagger are two nice projects which are focusing on documentation of 
 This project is a middle tier which tries to bring them together in a sense that:
 > It uses apidoc to convert inline documentation comments into json schema and later convert it to swagger json schema.
 
-Uses the [apidoc-core](https://github.com/apidoc/apidoc-core) library.
+Uses the [apidoc](https://github.com/apidoc/apidoc) library.
 
 ## How It Works
 
